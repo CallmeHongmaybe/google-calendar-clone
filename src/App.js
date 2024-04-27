@@ -1,14 +1,16 @@
 import React, { useState, useContext, useEffect } from "react";
 import "./App.css";
-import { getMonth } from "./util";
+import { CALENDAR_VIEWS, getMonth } from "./util";
 import CalendarHeader from "./components/CalendarHeader";
 import Sidebar from "./components/Sidebar";
 import Month from "./components/Month";
 import GlobalContext from "./context/GlobalContext";
 import EventModal from "./components/EventModal";
+import Week from "./components/Week";
 function App() {
   const [currenMonth, setCurrentMonth] = useState(getMonth());
-  const { monthIndex, showEventModal } = useContext(GlobalContext);
+  const { monthIndex, weekIndex, calendarView, showEventModal } =
+    useContext(GlobalContext);
 
   useEffect(() => {
     setCurrentMonth(getMonth(monthIndex));
@@ -22,7 +24,12 @@ function App() {
         <CalendarHeader />
         <div className="flex flex-1">
           <Sidebar />
-          <Month month={currenMonth} />
+
+          {calendarView === CALENDAR_VIEWS.MONTH ? (
+            <Month month={currenMonth} />
+          ) : (
+            <Week week={currenMonth[weekIndex]} />
+          )}
         </div>
       </div>
     </React.Fragment>

@@ -4,9 +4,7 @@ import GlobalContext from "../context/GlobalContext";
 import { getMonth } from "../util";
 
 export default function SmallCalendar() {
-  const [currentMonthIdx, setCurrentMonthIdx] = useState(
-    dayjs().month()
-  );
+  const [currentMonthIdx, setCurrentMonthIdx] = useState(dayjs().month());
   const [currentMonth, setCurrentMonth] = useState(getMonth());
   useEffect(() => {
     setCurrentMonth(getMonth(currentMonthIdx));
@@ -17,6 +15,7 @@ export default function SmallCalendar() {
     setSmallCalendarMonth,
     setDaySelected,
     daySelected,
+    weekIndex,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -46,9 +45,7 @@ export default function SmallCalendar() {
     <div className="mt-9">
       <header className="flex justify-between">
         <p className="text-gray-500 font-bold">
-          {dayjs(new Date(dayjs().year(), currentMonthIdx)).format(
-            "MMMM YYYY"
-          )}
+          {dayjs(new Date(dayjs().year(), currentMonthIdx)).format("MMMM YYYY")}
         </p>
         <div>
           <button onClick={handlePrevMonth}>
@@ -63,29 +60,38 @@ export default function SmallCalendar() {
           </button>
         </div>
       </header>
-      <div className="grid grid-cols-7 grid-rows-6">
+      <div className="grid grid-cols-7">
         {currentMonth[0].map((day, i) => (
           <span key={i} className="text-sm py-1 text-center">
             {day.format("dd").charAt(0)}
           </span>
         ))}
-        {currentMonth.map((row, i) => (
-          <React.Fragment key={i}>
-            {row.map((day, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setSmallCalendarMonth(currentMonthIdx);
-                  setDaySelected(day);
-                }}
-                className={`py-1 w-full ${getDayClass(day)}`}
-              >
-                <span className="text-sm">{day.format("D")}</span>
-              </button>
-            ))}
-          </React.Fragment>
-        ))}
       </div>
+      {currentMonth.map((row, i) => (
+        <div
+          className="grid grid-cols-7"
+          style={
+            weekIndex === i
+              ? {
+                  background: "#a2a2a2",
+                }
+              : {}
+          }
+        >
+          {row.map((day, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setSmallCalendarMonth(currentMonthIdx);
+                setDaySelected(day);
+              }}
+              className={`py-1 w-full ${getDayClass(day)}`}
+            >
+              <span className="text-sm">{day.format("D")}</span>
+            </button>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }

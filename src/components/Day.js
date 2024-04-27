@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import React, { useContext, useState, useEffect } from "react";
 import GlobalContext from "../context/GlobalContext";
+import { CALENDAR_VIEWS } from "../util";
 
 export default function Day({ day, rowIdx }) {
   const [dayEvents, setDayEvents] = useState([]);
@@ -9,15 +10,19 @@ export default function Day({ day, rowIdx }) {
     setShowEventModal,
     filteredEvents,
     setSelectedEvent,
+    calendarView,
   } = useContext(GlobalContext);
 
   useEffect(() => {
     const events = filteredEvents.filter(
-      (evt) =>
-        dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
+      (evt) => dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY"),
     );
     setDayEvents(events);
   }, [filteredEvents, day]);
+
+  let dayTitle = (day) => (
+    <p className="text-sm mt-1">{day.format("ddd").toUpperCase()}</p>
+  );
 
   function getCurrentDayClass() {
     return day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
@@ -27,14 +32,10 @@ export default function Day({ day, rowIdx }) {
   return (
     <div className="border border-gray-200 flex flex-col">
       <header className="flex flex-col items-center">
-        {rowIdx === 0 && (
-          <p className="text-sm mt-1">
-            {day.format("ddd").toUpperCase()}
-          </p>
-        )}
-        <p
-          className={`text-sm p-1 my-1 text-center  ${getCurrentDayClass()}`}
-        >
+        {calendarView === CALENDAR_VIEWS.MONTH
+          ? rowIdx === 0 && dayTitle(day)
+          : dayTitle(day)}
+        <p className={`text-sm p-1 my-1 text-center  ${getCurrentDayClass()}`}>
           {day.format("DD")}
         </p>
       </header>

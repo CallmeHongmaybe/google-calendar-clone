@@ -17,6 +17,8 @@ const GlobalContext = React.createContext({
   labels: [],
   updateLabel: () => {},
   filteredEvents: [],
+  calendarView: null,
+  setCalendarView: () => {}
 });
 
 export default GlobalContext;
