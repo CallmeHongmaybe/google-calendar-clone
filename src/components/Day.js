@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import React, { useContext, useState, useEffect } from "react";
 import GlobalContext from "../context/GlobalContext";
-import { CALENDAR_VIEWS } from "../util";
 
 export default function Day({ day, rowIdx }) {
   const [dayEvents, setDayEvents] = useState([]);
@@ -10,7 +9,6 @@ export default function Day({ day, rowIdx }) {
     setShowEventModal,
     filteredEvents,
     setSelectedEvent,
-    calendarView,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -32,15 +30,13 @@ export default function Day({ day, rowIdx }) {
   return (
     <div className="border border-gray-200 flex flex-col">
       <header className="flex flex-col items-center">
-        {calendarView === CALENDAR_VIEWS.MONTH
-          ? rowIdx === 0 && dayTitle(day)
-          : dayTitle(day)}
+        {rowIdx === 0 && dayTitle(day)}
         <p className={`text-sm p-1 my-1 text-center  ${getCurrentDayClass()}`}>
           {day.format("DD")}
         </p>
       </header>
       <div
-        className="flex-1 cursor-pointer"
+        className={`flex-1 cursor-pointer`}
         onClick={() => {
           setDaySelected(day);
           setShowEventModal(true);

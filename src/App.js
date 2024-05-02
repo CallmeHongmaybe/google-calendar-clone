@@ -20,7 +20,10 @@ function App() {
     <React.Fragment>
       {showEventModal && <EventModal />}
 
-      <div className="h-screen flex flex-col">
+      <div
+        className="flex flex-col"
+        style={{ height: "100vh", overflow: "scroll" }}
+      >
         <CalendarHeader />
         <div className="flex flex-1">
           <Sidebar />
