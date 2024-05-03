@@ -10,6 +10,10 @@ dayjs.extend(isoWeek); // Ensure consistent week start (typically Monday)
 
 function savedEventsReducer(state, { type, payload }) {
   switch (type) {
+    // case "swap":
+    //   let prevDate = payload.id;
+    //   find id then delete
+    //   concat state with the new event payload
     case "push":
       return [...state, payload];
     case "update":
