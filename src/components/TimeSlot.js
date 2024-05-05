@@ -1,7 +1,7 @@
 import GlobalContext from "../context/GlobalContext";
 import { useContext } from "react";
 import dayjs from "dayjs";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 const convertToAMPM = (hour) => {
   if (hour < 0 || hour > 24) {
@@ -35,20 +35,13 @@ function getDurationInMinutes(start_date, end_date) {
   // Convert milliseconds to minutes
   const durationInMinutes = durationInMilliseconds / 1000 / 60;
 
-  console.log("durationInMinutes", durationInMinutes);
   return durationInMinutes;
 }
 
 function EventChip({ evt, idx, onClick }) {
   evt = JSON.parse(evt);
   let [isDragging, setIsDragging] = useState(false);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-    // Remove event listeners from the document
-    document.removeEventListener("mouseup", handleMouseUp);
-    console.log("ev listener removed");
-  }, []);
+  const { dispatchCalEvent } = useContext(GlobalContext);
 
   return (
     <div
@@ -58,8 +51,15 @@ function EventChip({ evt, idx, onClick }) {
       onContextMenu={(e) => {
         e.preventDefault();
         setIsDragging(true);
-        document.addEventListener("mouseup", handleMouseUp);
-        console.log("ev listener added");
+        dispatchCalEvent({
+          type: "drag",
+          payload: {
+            evtId: evt.id,
+          },
+        });
+      }}
+      onDragEnd={() => {
+        setIsDragging(false);
       }}
       style={{
         zIndex: 10,
@@ -80,6 +80,7 @@ export const TimeSlot = ({ date, idx }) => {
     setShowEventModal,
     setSelectedEvent,
     filteredEvents,
+    dispatchCalEvent,
   } = useContext(GlobalContext);
   const [dayEvents, setDayEvents] = useState([]);
 
@@ -110,6 +111,12 @@ export const TimeSlot = ({ date, idx }) => {
       }}
       onDrop={(e) => {
         e.currentTarget.style.backgroundColor = "#fff";
+        dispatchCalEvent({
+          type: "move",
+          payload: {
+            newDate: date,
+          },
+        });
       }}
     >
       {date.day() === 0 && (

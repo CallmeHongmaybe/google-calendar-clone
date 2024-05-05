@@ -1,20 +1,8 @@
 import dayjs from "dayjs";
-import React, { useContext, useState, useEffect, useMemo } from "react";
-import GlobalContext from "../context/GlobalContext";
+import React, { useMemo } from "react";
 import { TimeSlot } from "./TimeSlot";
 
-export default function Day({ day, rowIdx }) {
-  const [dayEvents, setDayEvents] = useState([]);
-  const { filteredEvents } = useContext(GlobalContext);
-
-  useEffect(() => {
-    const events = filteredEvents.filter(
-      (evt) =>
-        dayjs(evt.start_date).format("DD-MM-YY") === day.format("DD-MM-YY"),
-    );
-    setDayEvents(events);
-  }, [filteredEvents, day]);
-
+export default function WeekDay({ day, rowIdx }) {
   let dayTitle = (day, i) => (
     <p className="text-sm mt-1" key={i}>
       {day.format("ddd").toUpperCase()}

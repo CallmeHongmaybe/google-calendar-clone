@@ -8,14 +8,48 @@ import { CALENDAR_VIEWS, getCurrentWeekOfMonth } from "../util";
 dayjs.extend(weekOfYear);
 dayjs.extend(isoWeek); // Ensure consistent week start (typically Monday)
 
+function getDurationInMinutes(start_date, end_date) {
+  const startDate = new Date(start_date);
+  const endDate = new Date(end_date);
+
+  // Calculate the difference in milliseconds
+  const durationInMilliseconds = endDate - startDate;
+
+  // Convert milliseconds to minutes
+  const durationInMinutes = durationInMilliseconds / 1000 / 60;
+
+  return durationInMinutes;
+}
+
 function savedEventsReducer(state, { type, payload }) {
+  let stateCopy = [...state];
   switch (type) {
-    // case "swap":
-    //   let prevDate = payload.id;
-    //   find id then delete
-    //   concat state with the new event payload
+    case "drag":
+      let draggedEvtIndx = stateCopy.findIndex(
+        (evt) => evt.id === payload.evtId,
+      );
+      stateCopy[draggedEvtIndx].dragged = true;
+      return stateCopy;
+    case "move":
+      for (let i = 0; i < stateCopy.length; i++) {
+        if (stateCopy[i].dragged) {
+          let { start_date, end_date } = stateCopy[i];
+          let newStartTime = payload.newDate;
+          let newEndTime = newStartTime.add(
+            getDurationInMinutes(start_date, end_date),
+            "minute",
+          );
+          stateCopy[i] = {
+            ...stateCopy[i],
+            start_date: newStartTime.valueOf(),
+            end_date: newEndTime.valueOf(),
+            dragged: false,
+          };
+        }
+      }
+      return stateCopy;
     case "push":
-      return [...state, payload];
+      return stateCopy.concat(payload);
     case "update":
       return state.map((evt) => (evt.id === payload.id ? payload : evt));
     case "delete":
@@ -70,14 +104,6 @@ export default function ContextWrapper(props) {
       });
     });
   }, [savedEvents]);
-
-  // useEffect(() => {
-  //   if (showEventModal) {
-  //     let parsedEvents = savedEvents.find(event => event.id === );
-  //     if (parsedEvents.start_date) setDaySelected(parsedEvents.start_date);
-  //     if (parsedEvents.end_date) setDayEndSelected(parsedEvents.end_date);
-  //   }
-  // }, [showEventModal, savedEvents]);
 
   useEffect(() => {
     if (smallCalendarMonth !== null) {
