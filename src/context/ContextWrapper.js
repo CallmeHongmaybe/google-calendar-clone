@@ -68,7 +68,7 @@ export default function ContextWrapper(props) {
   const [monthIndex, setMonthIndex] = useState(dayjs().month());
   const [weekIndex, setWeekIndex] = useState(getCurrentWeekOfMonth());
   const [smallCalendarMonth, setSmallCalendarMonth] = useState(null);
-  const [daySelected, setDaySelected] = useState(dayjs());
+  const [daySelected, setDaySelected] = useState(null);
   const [dayEndSelected, setDayEndSelected] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -88,6 +88,13 @@ export default function ContextWrapper(props) {
         .includes(evt.label),
     );
   }, [savedEvents, labels]);
+
+  useEffect(() => {
+    if (selectedEvent) {
+      setDaySelected(dayjs(selectedEvent.start_date));
+      setDayEndSelected(dayjs(selectedEvent.end_date));
+    }
+  }, [selectedEvent]);
 
   useEffect(() => {
     localStorage.setItem("savedEvents", JSON.stringify(savedEvents));

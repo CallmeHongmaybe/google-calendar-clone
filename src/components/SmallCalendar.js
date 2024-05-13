@@ -13,7 +13,7 @@ export default function SmallCalendar() {
   const {
     monthIndex,
     setSmallCalendarMonth,
-    setDaySelected,
+    setWeekIndex,
     daySelected,
     weekIndex,
   } = useContext(GlobalContext);
@@ -83,7 +83,7 @@ export default function SmallCalendar() {
               key={idx}
               onClick={() => {
                 setSmallCalendarMonth(currentMonthIdx);
-                setDaySelected(day);
+                setWeekIndex(i);
               }}
               className={`py-1 w-full ${getDayClass(day)}`}
             >

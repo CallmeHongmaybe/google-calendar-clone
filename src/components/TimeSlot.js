@@ -2,6 +2,7 @@ import GlobalContext from "../context/GlobalContext";
 import { useContext } from "react";
 import dayjs from "dayjs";
 import { useState, useEffect } from "react";
+import EventChip from "./EventChip";
 
 const convertToAMPM = (hour) => {
   if (hour < 0 || hour > 24) {
@@ -19,61 +20,6 @@ const convertToAMPM = (hour) => {
   }
 };
 
-function getDurationInMinutes(start_date, end_date) {
-  // Check if start_date or end_date is nullish (null or undefined)
-  // if (start_date == null || end_date == null) {
-  //   return;
-  // }
-
-  // Convert Unix timestamps to JavaScript Date objects
-  const startDate = new Date(start_date);
-  const endDate = new Date(end_date);
-
-  // Calculate the difference in milliseconds
-  const durationInMilliseconds = endDate - startDate;
-
-  // Convert milliseconds to minutes
-  const durationInMinutes = durationInMilliseconds / 1000 / 60;
-
-  return durationInMinutes;
-}
-
-function EventChip({ evt, idx, onClick }) {
-  evt = JSON.parse(evt);
-  let [isDragging, setIsDragging] = useState(false);
-  const { dispatchCalEvent } = useContext(GlobalContext);
-
-  return (
-    <div
-      key={idx}
-      onClick={onClick}
-      draggable={isDragging}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        setIsDragging(true);
-        dispatchCalEvent({
-          type: "drag",
-          payload: {
-            evtId: evt.id,
-          },
-        });
-      }}
-      onDragEnd={() => {
-        setIsDragging(false);
-      }}
-      style={{
-        zIndex: 10,
-        height: `${(getDurationInMinutes(evt.start_date, evt.end_date) * 100) / 60}%`,
-        cursor: isDragging ? "grabbing" : "grab",
-        opacity: isDragging ? 0.6 : 1,
-      }}
-      className={`bg-${evt.label}-200 p-1 mr-3 text-gray-600 text-sm rounded mb-1 truncate`}
-    >
-      {evt.title}
-    </div>
-  );
-}
-
 export const TimeSlot = ({ date, idx }) => {
   const {
     setDaySelected,
@@ -82,14 +28,15 @@ export const TimeSlot = ({ date, idx }) => {
     filteredEvents,
     dispatchCalEvent,
   } = useContext(GlobalContext);
-  const [dayEvents, setDayEvents] = useState([]);
+  const [dayEvent, setDayEvent] = useState();
 
   useEffect(() => {
-    const events = filteredEvents.filter((evt) => {
-      let isSameDate = dayjs(evt.start_date).isSame(date, "hour");
-      return isSameDate;
-    });
-    setDayEvents(events);
+    const event =
+      filteredEvents.find((evt) => {
+        let isSameDate = dayjs(evt.start_date).isSame(date, "hour");
+        return isSameDate;
+      }) || null;
+    setDayEvent(event);
   }, [filteredEvents, date]);
 
   return (
@@ -111,12 +58,14 @@ export const TimeSlot = ({ date, idx }) => {
       }}
       onDrop={(e) => {
         e.currentTarget.style.backgroundColor = "#fff";
-        dispatchCalEvent({
-          type: "move",
-          payload: {
-            newDate: date,
-          },
-        });
+        if (!dayEvent) {
+          dispatchCalEvent({
+            type: "move",
+            payload: {
+              newDate: date,
+            },
+          });
+        }
       }}
     >
       {date.day() === 0 && (
@@ -124,13 +73,13 @@ export const TimeSlot = ({ date, idx }) => {
           {convertToAMPM(date.hour())}
         </span>
       )}
-      {dayEvents.map((evt, idx) => (
+      {dayEvent && (
         <EventChip
-          onClick={() => setSelectedEvent(evt)}
-          evt={JSON.stringify(evt)}
+          onClick={() => setSelectedEvent(dayEvent)}
+          evt={JSON.stringify(dayEvent)}
           idx={idx}
         />
-      ))}
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useMemo, useState, useEffect } from "react";
 import GlobalContext from "../context/GlobalContext";
 import dayjs from "dayjs";
+import CustomDatePicker from "./DatePicker";
 
 const labelsClasses = ["indigo", "gray", "green", "blue", "red", "purple"];
 
@@ -8,6 +9,7 @@ export default function EventModal() {
   const {
     setShowEventModal,
     daySelected,
+    setDaySelected,
     dispatchCalEvent,
     selectedEvent,
     dayEndSelected,
@@ -38,8 +40,12 @@ export default function EventModal() {
     };
     if (selectedEvent) {
       dispatchCalEvent({ type: "update", payload: calendarEvent });
+      setDaySelected();
+      setDayEndSelected();
     } else {
       dispatchCalEvent({ type: "push", payload: calendarEvent });
+      setDaySelected();
+      setDayEndSelected();
     }
 
     setShowEventModal(false);
@@ -116,20 +122,27 @@ export default function EventModal() {
               onChange={(e) => setTitle(e.target.value)}
             />
             <span className="text-gray-400">Start</span>
+
             <p>
-              {!daySelected
-                ? selectedEvent?.start_date &&
-                  dayjs(selectedEvent.start_date).format("dddd, MMMM DD, HH:mm")
-                : daySelected.format("dddd, MMMM DD, HH:mm")}
+              {selectedEvent?.start_date ? (
+                <>
+                  <span>
+                    {dayjs(selectedEvent.start_date).format("dddd, MMMM DD, ")}
+                  </span>
+                  <CustomDatePicker selectedDate={selectedEvent.start_date} />
+                </>
+              ) : (
+                <>
+                  <span>{daySelected.format("dddd, MMMM DD, ")}</span>
+                  <CustomDatePicker />
+                </>
+              )}
             </p>
             <span className="text-gray-400">Duration</span>
             <p>{meetingDurationSelect.map((el) => el)}</p>
             <span className="text-gray-400">End</span>
             <p>
-              {!dayEndSelected
-                ? selectedEvent?.end_date &&
-                  dayjs(selectedEvent.end_date).format("dddd, MMMM DD, HH:mm")
-                : dayEndSelected.format("dddd, MMMM DD, HH:mm")}
+              {dayEndSelected && dayEndSelected.format("dddd, MMMM DD, HH:mm")}
             </p>
             <span className="material-icons-outlined text-gray-400">
               segment

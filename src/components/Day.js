@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import React, { useContext, useState, useEffect } from "react";
 import GlobalContext from "../context/GlobalContext";
+import EventChip from "./EventChip";
 
 export default function Day({ day, rowIdx }) {
   const [dayEvents, setDayEvents] = useState([]);
@@ -9,6 +10,7 @@ export default function Day({ day, rowIdx }) {
     setShowEventModal,
     filteredEvents,
     setSelectedEvent,
+    dispatchCalEvent,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -39,18 +41,38 @@ export default function Day({ day, rowIdx }) {
       <div
         className={`flex-1 cursor-pointer`}
         onClick={() => {
-          setDaySelected(day);
+          setDaySelected(
+            day.hour(new Date().getHours()).startOf("hour").add(1, "hour"),
+          );
           setShowEventModal(true);
         }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.currentTarget.style.backgroundColor = "#a2a2a2";
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.currentTarget.style.backgroundColor = "#fff";
+        }}
+        onDrop={(e) => {
+          e.currentTarget.style.backgroundColor = "#fff";
+          dispatchCalEvent({
+            type: "move",
+            payload: {
+              newDate: day
+                .hour(new Date().getHours())
+                .startOf("hour")
+                .add(1, "hour"),
+            },
+          });
+        }}
       >
-        {dayEvents.map((evt, idx) => (
-          <div
-            key={idx}
-            onClick={() => setSelectedEvent(evt)}
-            className={`bg-${evt.label}-200 p-1 mr-3 text-gray-600 text-sm rounded mb-1 truncate`}
-          >
-            {evt.title}
-          </div>
+        {dayEvents.map((dayEvent) => (
+          <EventChip
+            onClick={() => setSelectedEvent(dayEvent)}
+            evt={JSON.stringify(dayEvent)}
+            idx={dayEvent.id}
+          />
         ))}
       </div>
     </div>
